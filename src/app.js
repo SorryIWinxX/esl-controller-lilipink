@@ -1,25 +1,21 @@
 require('dotenv').config();
 const express = require('express');
 const { testConnection } = require('./config/database');
-const ControllerPedidos = require('./controllers/ControllerPedidos');
-const ControllerESL = require('./controllers/ControllerESL');
-const ServiceScanner = require('./services/ServiceScanner');
-
+const cors = require('cors');
+const eslRoutes = require('./routes/eslRoutes');
+const pedidosRoutes = require('./routes/pedidosRoutes');
+const loginRoutes = require('./routes/loginRoutes');
+const healthRoutes = require('./routes/healthRoute');
 const app = express();
-const pedidosController = new ControllerPedidos();
-const eslController = new ControllerESL();
-const scanner = new ServiceScanner();
 
-// Middleware
 app.use(express.json());
+app.use(cors());
 
-// Rutas para pedidos
-app.get('/pedidos/:id', (req, res) => pedidosController.getPedido(req, res));
-app.post('/pedidos', (req, res) => pedidosController.crearPedido(req, res));
-
-// Rutas para ESL
-app.get('/esl', (req, res) => eslController.getAll(req, res));
-app.delete('/esl', (req, res) => eslController.deleteAll(req, res));
+// Routes
+app.use('/api/login', loginRoutes);
+app.use('/api/pedidos', pedidosRoutes);
+app.use('/api/esl', eslRoutes);
+app.use('/api/health', healthRoutes);
 
 // Manejo de errores global
 app.use((err, req, res, next) => {
@@ -41,8 +37,6 @@ const startServer = async () => {
       console.log(`Server running in ${process.env.NODE_ENV} mode on port ${PORT}`);
     });
 
-    // Iniciar scanner
-    scanner.iniciarEscaneo().catch(console.error);
   } catch (error) {
     console.error('Failed to start server:', error);
     process.exit(1);
@@ -50,3 +44,4 @@ const startServer = async () => {
 };
 
 startServer();
+

@@ -1,12 +1,13 @@
 const pool = require('../config/database');
 
-class ServicePedidos {
+class pedidoService {
   
 
   async getAllPedidos() {
     try {
       const query = 'SELECT * FROM pedidos';
       const pedidos = await pool.query(query);
+      console.log(pedidos);
       const pedidosOrdenados = this.sorterPedidos(pedidos.rows);
       return pedidosOrdenados;
     } catch (error) {
@@ -15,6 +16,17 @@ class ServicePedidos {
     }
   }
 
+  async buscarPorEan(ean) {
+    try {
+      const query = 'SELECT * FROM pedidos WHERE ean = $1';
+      const result = await pool.query(query, [ean]);
+      return result.rows;
+    } catch (error) {
+      console.error(`Error al buscar pedidos por EAN ${ean}:`, error);
+      throw error;
+    }
+  }
+  
   sorterPedidos(pedidos) {
     const pedidosAgrupados = pedidos.reduce((grupos, pedido) => {
       const pedsap = pedido.pedsap;
@@ -37,6 +49,7 @@ class ServicePedidos {
 
     return Object.values(pedidosAgrupados);
   }
+
 }
 
-module.exports = ServicePedidos; 
+module.exports = pedidoService; 
